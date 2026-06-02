@@ -36,7 +36,7 @@ public class Vendedor {
     @Column(name = "fechapostulacion", nullable = false)
     private LocalDate fechaPostulacion ;
 
-    @Column(name = "estado", nullable = false, length = 20)
+    @Column(name = "estado", nullable = false, length = 20) //atributo para indicar si el vendedor  esta activo para operar en el marketplace o no
     private String estado;
 }
 

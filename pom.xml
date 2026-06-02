@@ -7,9 +7,9 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.14</version> <relativePath/> </parent>
     <groupId>cl.duoc</groupId>
-    <artifactId>catalogo</artifactId>
+    <artifactId>vendedor</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>catalogo</name>
+    <name>vendedor</name>
     <description>vendedor</description>
     
     <properties>
