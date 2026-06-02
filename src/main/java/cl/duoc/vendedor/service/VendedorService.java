@@ -11,8 +11,8 @@ import cl.duoc.vendedor.repository.VendedorRepository;
 import cl.duoc.vendedor.dto.UpdateRequestVendedor;
 import cl.duoc.vendedor.mapper.VendedorMapper;
 import cl.duoc.vendedor.exception.ResourceNotFoundException;
-
-
+import cl.duoc.vendedor.dto.CreateRequestVendedor;
+import cl.duoc.vendedor.dto.VendedorResponse;
 @Service
 public class VendedorService {
 
@@ -87,6 +87,18 @@ public VendedorService(
 
         v.setEstado(estado);
         vendedorRepository.save(v);
+    }
+
+
+public Vendedor buscarPorId(Integer id) {
+    return vendedorRepository.findById(id)
+            .orElse(null);
+}
+    // Método para encontrar un vendedor por su ID
+    public Vendedor findById(Integer id) {
+        return vendedorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendedor no encontrado"));
     }
 }
 

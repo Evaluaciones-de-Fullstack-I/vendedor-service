@@ -21,6 +21,7 @@ import cl.duoc.vendedor.dto.CreateRequestVendedor;
 import cl.duoc.vendedor.model.Vendedor;
 import cl.duoc.vendedor.service.VendedorService;
 import cl.duoc.vendedor.dto.UpdateRequestVendedor;
+import cl.duoc.vendedor.dto.VendedorResponse;
 import cl.duoc.vendedor.exception.ResourceNotFoundException;
 
 @RestController
@@ -200,6 +201,51 @@ public ResponseEntity<Map<String, String>> actualizarProducto(
 
     return ResponseEntity.ok(response);
 }
+//comunicacion
 
+@PutMapping("/rechazar/{id}")
+public ResponseEntity<Void> rechazar(@PathVariable Integer id) {
 
+    vendedorService.cambiarEstado(id, "RECHAZADO");
+
+    return ResponseEntity.ok().build();
 }
+
+@PutMapping("/aprobar/{id}")
+public ResponseEntity<Void> aprobar(@PathVariable Integer id) {
+ System.out.println("📥 VENDEDOR: recibió solicitud del ADMIN ID " + id);
+    vendedorService.cambiarEstado(id, "APROBADO");
+System.out.println("✅ Vendedor aprobado ID: " + id);
+    return ResponseEntity.ok().build();
+
+    
+}
+@GetMapping("/verificar/{id}")
+public ResponseEntity<String> verificarVendedor(
+        @PathVariable Integer id
+) {
+    Vendedor vendedor = vendedorService.buscarPorId(id);
+
+    if (vendedor == null) {
+        return ResponseEntity.ok("NO_EXISTE");
+    }
+
+    return ResponseEntity.ok(vendedor.getEstado());
+}
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VendedorResponse> obtenerPorId(@PathVariable Integer id) {
+
+        Vendedor vendedor = vendedorService.findById(id);
+
+        VendedorResponse response = new VendedorResponse();
+        response.setId(vendedor.getId());
+        response.setNombre(vendedor.getNombre());
+        response.setEstado(vendedor.getEstado());
+
+        return ResponseEntity.ok(response);
+    }
+}
+
+
+
