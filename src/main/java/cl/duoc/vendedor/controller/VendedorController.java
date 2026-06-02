@@ -220,7 +220,18 @@ System.out.println("✅ Vendedor aprobado ID: " + id);
 
     
 }
+@GetMapping("/verificar/{id}")
+public ResponseEntity<String> verificarVendedor(
+        @PathVariable Integer id
+) {
+    Vendedor vendedor = vendedorService.buscarPorId(id);
 
+    if (vendedor == null) {
+        return ResponseEntity.ok("NO_EXISTE");
+    }
+
+    return ResponseEntity.ok(vendedor.getEstado());
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<VendedorResponse> obtenerPorId(@PathVariable Integer id) {

@@ -90,7 +90,10 @@ public VendedorService(
     }
 
 
-
+public Vendedor buscarPorId(Integer id) {
+    return vendedorRepository.findById(id)
+            .orElse(null);
+}
     // Método para encontrar un vendedor por su ID
     public Vendedor findById(Integer id) {
         return vendedorRepository.findById(id)
