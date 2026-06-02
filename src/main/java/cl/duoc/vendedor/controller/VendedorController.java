@@ -233,18 +233,6 @@ public ResponseEntity<String> verificarVendedor(
     return ResponseEntity.ok(vendedor.getEstado());
 }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<VendedorResponse> obtenerPorId(@PathVariable Integer id) {
-
-        Vendedor vendedor = vendedorService.findById(id);
-
-        VendedorResponse response = new VendedorResponse();
-        response.setId(vendedor.getId());
-        response.setNombre(vendedor.getNombre());
-        response.setEstado(vendedor.getEstado());
-
-        return ResponseEntity.ok(response);
-    }
 }
 
 
