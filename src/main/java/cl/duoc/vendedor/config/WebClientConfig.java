@@ -7,8 +7,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
  @Bean //ejemplo de configuracion de un webclient para consumir una api externa
-    public WebClient pokeApiWebClient(WebClient.Builder builder) {
-        return builder.baseUrl(" url..").build();
+    public WebClient webClient(WebClient.Builder builder) {
+        return builder.build();
     }
 
 

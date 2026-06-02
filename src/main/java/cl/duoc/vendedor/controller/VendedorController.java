@@ -200,6 +200,25 @@ public ResponseEntity<Map<String, String>> actualizarProducto(
 
     return ResponseEntity.ok(response);
 }
+//comunicacion
 
+@PutMapping("/rechazar/{id}")
+public ResponseEntity<Void> rechazar(@PathVariable Integer id) {
+
+    vendedorService.cambiarEstado(id, "RECHAZADO");
+
+    return ResponseEntity.ok().build();
+}
+
+@PutMapping("/aprobar/{id}")
+public ResponseEntity<Void> aprobar(@PathVariable Integer id) {
+ System.out.println("📥 VENDEDOR: recibió solicitud del ADMIN ID " + id);
+    vendedorService.cambiarEstado(id, "APROBADO");
+System.out.println("✅ Vendedor aprobado ID: " + id);
+    return ResponseEntity.ok().build();
+
+    
+}
 
 }
+
