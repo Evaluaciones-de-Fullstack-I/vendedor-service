@@ -21,6 +21,7 @@ import cl.duoc.vendedor.dto.CreateRequestVendedor;
 import cl.duoc.vendedor.model.Vendedor;
 import cl.duoc.vendedor.service.VendedorService;
 import cl.duoc.vendedor.dto.UpdateRequestVendedor;
+import cl.duoc.vendedor.dto.VendedorResponse;
 import cl.duoc.vendedor.exception.ResourceNotFoundException;
 
 @RestController
@@ -220,5 +221,20 @@ System.out.println("✅ Vendedor aprobado ID: " + id);
     
 }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VendedorResponse> obtenerPorId(@PathVariable Integer id) {
+
+        Vendedor vendedor = vendedorService.findById(id);
+
+        VendedorResponse response = new VendedorResponse();
+        response.setId(vendedor.getId());
+        response.setNombre(vendedor.getNombre());
+        response.setEstado(vendedor.getEstado());
+
+        return ResponseEntity.ok(response);
+    }
 }
+
+
 
