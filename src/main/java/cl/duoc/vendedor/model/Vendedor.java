@@ -35,6 +35,15 @@ public class Vendedor {
 
     @Column(name = "fechapostulacion", nullable = false)
     private LocalDate fechaPostulacion ;
+ 
+    @Column(name = "rutempresa", nullable = false, length = 15) // Para el RUT de Ferretería Cóndor
+    private String rutEmpresa;
+
+    @Column(name = "urldocumentos", nullable = false, length = 255) // Para almacenar los documentos que sube
+    private String urlDocumentos;
+
+    @Column(name = "observaciones", nullable = true, length = 255) // Nullable porque al postular aún no tiene observaciones del Admin
+    private String observaciones;
 
     @Column(name = "estado", nullable = false, length = 20) //atributo para indicar si el vendedor  esta activo para operar en el marketplace o no
     private String estado;

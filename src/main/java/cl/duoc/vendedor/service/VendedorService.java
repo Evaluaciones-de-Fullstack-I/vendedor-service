@@ -79,13 +79,12 @@ public VendedorService(
         return v.getEstado();
     }
 
-    public void cambiarEstado(int id, String estado) {
-
+   public void cambiarEstado(int id, String estado, String observaciones) {
         Vendedor v = vendedorRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Vendedor no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendedor no encontrado"));
 
         v.setEstado(estado);
+        v.setObservaciones(observaciones); // <--- Seteamos la observación aquí
         vendedorRepository.save(v);
     }
 

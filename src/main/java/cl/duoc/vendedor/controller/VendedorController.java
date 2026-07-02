@@ -136,7 +136,7 @@ public ResponseEntity<Map<String, String>> cambiarEstado(
         @RequestBody Map<String, String> request
 ) {
 
-    vendedorService.cambiarEstado(id, request.get("estado"));
+   vendedorService.cambiarEstado(id, request.get("estado"), "Cambio de estado manual");
 
     Map<String, String> response = new HashMap<>();
     response.put("mensaje", "Estado actualizado correctamente");
@@ -150,6 +150,21 @@ public ResponseEntity<Map<String, Object>> publicarProducto(
         @PathVariable int id,
         @RequestBody Map<String, Object> request
 ) {
+
+Vendedor vendedor = vendedorService.getVendedorById(id);
+    
+    // Si no existe o no está APROBADO, se blowuea
+    if (vendedor == null || !"APROBADO".equalsIgnoreCase(vendedor.getEstado())) {
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Operación denegada. Tu cuenta debe estar APROBADA para publicar productos.");
+        errorResponse.put("estadoActual", vendedor == null ? "NO_EXISTE" : vendedor.getEstado());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse); 
+    }
+
+
+
+
+
 
     Object producto = webClient.post()
             .uri("http://producto-service/api/v1/productos")
@@ -204,21 +219,33 @@ public ResponseEntity<Map<String, String>> actualizarProducto(
 //comunicacion
 
 @PutMapping("/rechazar/{id}")
-public ResponseEntity<Void> rechazar(@PathVariable Integer id) {
-
-    vendedorService.cambiarEstado(id, "RECHAZADO");
-
+public ResponseEntity<Void> rechazar( @PathVariable Integer id, @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
+) {
+    System.out.println("VENDEDOR: recibió solicitud de rechazo del ADMIN ID " + id);
+    
+    // Extraemos la observación de rechazo de forma segura
+    String obs = request != null ? request.getOrDefault("observaciones", "Rechazado sin observaciones") : "Rechazado";
+    
+    // Le pasamos el ID, el estado y la observación al service
+    vendedorService.cambiarEstado(id, "RECHAZADO", obs);
+    
+    System.out.println("Vendedor rechazado ID: " + id + " con motivo: " + obs);
     return ResponseEntity.ok().build();
 }
 
 @PutMapping("/aprobar/{id}")
-public ResponseEntity<Void> aprobar(@PathVariable Integer id) {
- System.out.println("📥 VENDEDOR: recibió solicitud del ADMIN ID " + id);
-    vendedorService.cambiarEstado(id, "APROBADO");
-System.out.println("✅ Vendedor aprobado ID: " + id);
-    return ResponseEntity.ok().build();
-
+public ResponseEntity<Void> aprobar(  @PathVariable Integer id, @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
+) {
+    System.out.println("VENDEDOR: recibió solicitud del ADMIN ID " + id);
     
+    // Extraemos la observación de aprobación de forma segura
+    String obs = request != null ? request.getOrDefault("observaciones", "Aprobado sin observaciones") : "Aprobado";
+    
+    // Le pasamos el ID, el estado y la observación al service
+    vendedorService.cambiarEstado(id, "APROBADO", obs);
+    
+    System.out.println("Vendedor aprobado ID: " + id + " con obs: " + obs);
+    return ResponseEntity.ok().build();
 }
 @GetMapping("/verificar/{id}")
 public ResponseEntity<String> verificarVendedor(

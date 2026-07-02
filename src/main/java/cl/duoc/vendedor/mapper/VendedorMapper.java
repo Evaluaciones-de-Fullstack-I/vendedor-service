@@ -15,10 +15,11 @@ public class VendedorMapper {
         vendedor.setNombre(request.nombre());
         vendedor.setCorreo(request.correo());
         vendedor.setPassword(request.password());
-
-        // se asigna automáticamente
+        vendedor.setRutEmpresa(request.rutEmpresa());
+        vendedor.setUrlDocumentos(request.urlDocumentos());
         vendedor.setFechaPostulacion(LocalDate.now());
 
+        vendedor.setEstado("PENDIENTE");
         return vendedor;
     }
 

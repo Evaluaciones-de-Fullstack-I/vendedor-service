@@ -22,6 +22,12 @@ public record  CreateRequestVendedor(
     @Email(message = "El correo no tiene un formato válido")
     String correo,
 
+   @NotBlank(message = "El RUT de la empresa es obligatorio")
+    String rutEmpresa, 
+
+    @NotBlank(message = "Debe adjuntar la documentación requerida")
+    String urlDocumentos, 
+
     @NotNull(message = "La fecha de postulación es obligatoria")
     LocalDate fechaPostulacion){
 
