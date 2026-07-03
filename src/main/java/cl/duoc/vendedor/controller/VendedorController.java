@@ -24,9 +24,19 @@ import cl.duoc.vendedor.dto.UpdateRequestVendedor;
 import cl.duoc.vendedor.dto.VendedorResponse;
 import cl.duoc.vendedor.exception.ResourceNotFoundException;
 
+
+// IMPLEMENTACIÓN DE OPENAPI / SWAGGER
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+// Usamos un alias para evitar colisión de nombres con el @RequestBody de Spring
+ 
 @RestController
 @RequestMapping("/api/v1/vendedores")
-
+@Tag(name = "Vendedor Controller", description = "Endpoints para el registro de postulaciones, gestión de perfiles y publicación de catálogos")
 public class VendedorController {
 
 private final VendedorService vendedorService;
@@ -40,7 +50,10 @@ public VendedorController(VendedorService vendedorService, WebClient webClient) 
 //endpoint basicos///
 
 //LIstar vendedores
+
 @GetMapping
+    @Operation(summary = "Listar vendedores", description = "Recupera una lista con todos los vendedores registrados en el sistema.")
+    @ApiResponse(responseCode = "200", description = "Lista de vendedores obtenida con éxito")
 public ResponseEntity<List<Vendedor>> listarVendedores() {
     List<Vendedor> vendedores = vendedorService.getVendedores();
     return ResponseEntity.ok(vendedores);
@@ -49,7 +62,27 @@ public ResponseEntity<List<Vendedor>> listarVendedores() {
 //registra : crear postulacion 
 
 @PostMapping
+@Operation(summary = "Registrar postulación de vendedor", description = "Crea un registro de postulación inicial para un vendedor en estado 'PENDIENTE'.")
+    @ApiResponse(responseCode = "201", description = "Vendedor postulado correctamente")
+    @ApiResponse(responseCode = "400", description = "Datos de postulación inválidos")
 public ResponseEntity<Map<String, Object>> crearVendedor(
+
+@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Datos requeridos para la postulación del vendedor",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = CreateRequestVendedor.class),
+                examples = @ExampleObject(
+                    name = "Ejemplo de Postulación",
+                    value = "{\n  \"nombre\": \"Juan Pérez\",\n  \"correo\": \"juan.perez@tienda.cl\",\n  \"rutEmpresa\": \"76.123.456-K\",\n  \"telefono\": \"+56912345678\"\n}"
+                )
+            )
+        )
+
+
+
+
         @Valid @RequestBody CreateRequestVendedor request
 ) {
 
@@ -65,7 +98,12 @@ public ResponseEntity<Map<String, Object>> crearVendedor(
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
 }
 //buscar por id
+
 @GetMapping("/{id}")
+    @Operation(summary = "Buscar vendedor por ID", description = "Obtiene los detalles del perfil de un vendedor usando su ID único.")
+    @ApiResponse(responseCode = "200", description = "Vendedor encontrado")
+    @ApiResponse(responseCode = "404", description = "Vendedor no encontrado")
+
 public ResponseEntity<Vendedor> buscarVendedor(@PathVariable int id) {
 
     Vendedor vendedor = vendedorService.getVendedorById(id);
@@ -80,8 +118,25 @@ public ResponseEntity<Vendedor> buscarVendedor(@PathVariable int id) {
 }
 //actualizar perfil
 @PutMapping("/{id}")
+@Operation(summary = "Actualizar perfil del vendedor", description = "Permite modificar la información comercial o de contacto del vendedor.")
+    @ApiResponse(responseCode = "200", description = "Perfil actualizado correctamente")
+    @ApiResponse(responseCode = "404", description = "Vendedor no existente")
 public ResponseEntity<Map<String, Object>> actualizarVendedor(
         @PathVariable int id,
+@io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Campos a actualizar del vendedor",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UpdateRequestVendedor.class),
+                examples = @ExampleObject(
+                    name = "Ejemplo de Actualización",
+                    value = "{\n  \"nombre\": \"Juan Pérez Editado\",\n  \"telefono\": \"+56987654321\"\n}"
+                )
+            )
+        )
+
+
         @Valid @RequestBody UpdateRequestVendedor request
 ) {
 
@@ -97,6 +152,9 @@ public ResponseEntity<Map<String, Object>> actualizarVendedor(
 //eliminar pal vendeor
 
 @DeleteMapping("/{id}")
+@Operation(summary = "Eliminar un vendedor", description = "Remueve permanentemente el registro de un vendedor del sistema.")
+    @ApiResponse(responseCode = "200", description = "Vendedor eliminado correctamente")
+    @ApiResponse(responseCode = "404", description = "El ID del vendedor no existe")
 public ResponseEntity<Map<String, String>> eliminarVendedor(@PathVariable int id) {
 
     boolean eliminado = vendedorService.deleteVendedor(id);
@@ -119,6 +177,8 @@ public ResponseEntity<Map<String, String>> eliminarVendedor(@PathVariable int id
 
 //ver el estado de psotulacion 
 @GetMapping("/{id}/estado")
+@Operation(summary = "Ver estado del vendedor", description = "Endpoint rápido para consultar la fase actual del vendedor (PENDIENTE, APROBADO, RECHAZADO).")
+    @ApiResponse(responseCode = "200", description = "Estado obtenido")
 public ResponseEntity<Map<String, Object>> verEstado(@PathVariable int id) {
 
     Vendedor vendedor = vendedorService.getVendedorById(id);
@@ -129,10 +189,24 @@ public ResponseEntity<Map<String, Object>> verEstado(@PathVariable int id) {
 
     return ResponseEntity.ok(response);
 }
-
+//cambiar estado de postulacion 
 @PutMapping("/{id}/estado")
+@Operation(summary = "Cambiar estado de forma manual", description = "Permite modificar manualmente el estado operativo de un vendedor.")
+ @ApiResponse(responseCode = "200", description = "Estado modificado exitosamente")
 public ResponseEntity<Map<String, String>> cambiarEstado(
         @PathVariable int id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "JSON con el nuevo estado a asignar",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Ejemplo Cambio Estado",
+                    value = "{\n  \"estado\": \"APROBADO\"\n}"
+                )
+            )
+        )
+        
         @RequestBody Map<String, String> request
 ) {
 
@@ -146,8 +220,25 @@ public ResponseEntity<Map<String, String>> cambiarEstado(
 
 //oomo vendedor quiero poder publicar mi catalogo de productos para que los clientes pueda
 @PostMapping("/{id}/catalogo")
+@Operation(summary = "Publicar producto en catálogo", description = "Valida que el vendedor esté 'APROBADO' y delega la creación del producto al microservicio de productos via WebClient.")
+@ApiResponse(responseCode = "201", description = "Producto publicado correctamente")
+ @ApiResponse(responseCode = "403", description = "Operación denegada. El vendedor no está APROBADO")
 public ResponseEntity<Map<String, Object>> publicarProducto(
         @PathVariable int id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Datos del producto a publicar",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Ejemplo Publicación Producto",
+                    value = "{\n  \"nombre\": \"Taladro Inalámbrico\",\n  \"descripcion\": \"Taladro de 18V con batería incluida\",\n  \"precio\": 120000,\n  \"stock\": 15\n}"
+                )
+            )
+        )   
+
+
+
         @RequestBody Map<String, Object> request
 ) {
 
@@ -160,10 +251,6 @@ Vendedor vendedor = vendedorService.getVendedorById(id);
         errorResponse.put("estadoActual", vendedor == null ? "NO_EXISTE" : vendedor.getEstado());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse); 
     }
-
-
-
-
 
 
     Object producto = webClient.post()
@@ -183,6 +270,8 @@ Vendedor vendedor = vendedorService.getVendedorById(id);
 //coomo vendedor quiero poder ver catalogo de mis productos publicados 
 
 @GetMapping("/{id}/productos")
+@Operation(summary = "Ver productos del vendedor", description = "Consulta al servicio de productos los ítems pertenecientes a este vendedor.")
+    @ApiResponse(responseCode = "200", description = "Catálogo del vendedor obtenido")
 public ResponseEntity<Object> verProductos(@PathVariable int id) {
 
     Object productos = webClient.get()
@@ -198,6 +287,8 @@ public ResponseEntity<Object> verProductos(@PathVariable int id) {
 //como vendedor quiero poder actualizar precios y stock de mis productos publicados
 
 @PutMapping("/{id}/catalogo/{productoId}")
+@Operation(summary = "Actualizar precio y stock de un producto", description = "Envía una actualización al servicio de catálogo para modificar valores de un producto del vendedor.")
+    @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente")
 public ResponseEntity<Map<String, String>> actualizarProducto(
         @PathVariable int id,
         @PathVariable int productoId,
@@ -216,10 +307,27 @@ public ResponseEntity<Map<String, String>> actualizarProducto(
 
     return ResponseEntity.ok(response);
 }
-//comunicacion
+//comunicacion  asincrona desd eel admin 
+
 
 @PutMapping("/rechazar/{id}")
-public ResponseEntity<Void> rechazar( @PathVariable Integer id, @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
+@Operation(summary = "Rechazar vendedor (Interno)", description = "Endpoint consumido por el microservicio de Administración para rechazar una postulación guardando observaciones.")
+@ApiResponse(responseCode = "200", description = "Vendedor rechazado exitosamente")
+public ResponseEntity<Void> rechazar( 
+    @PathVariable Integer id, 
+    // Agregamos la documentación de Swagger para el cuerpo aquí:
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Observación detallando el motivo del rechazo",
+        required = false,
+        content = @Content(
+            mediaType = "application/json",
+            examples = @ExampleObject(
+                name = "Ejemplo Observación Rechazo",
+                value = "{\n  \"observaciones\": \"RUT de empresa inválido o no vigente\"\n}"
+            )
+        )
+    )
+    @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
 ) {
     System.out.println("VENDEDOR: recibió solicitud de rechazo del ADMIN ID " + id);
     
@@ -234,7 +342,23 @@ public ResponseEntity<Void> rechazar( @PathVariable Integer id, @RequestBody(req
 }
 
 @PutMapping("/aprobar/{id}")
-public ResponseEntity<Void> aprobar(  @PathVariable Integer id, @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
+@Operation(summary = "Aprobar vendedor (Interno)", description = "Endpoint consumido por el microservicio de Administración para aprobar una postulación.")
+@ApiResponse(responseCode = "200", description = "Vendedor aprobado exitosamente")
+public ResponseEntity<Void> aprobar(
+    @PathVariable Integer id, 
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Observación de aprobación opcional",
+        required = false,
+        content = @Content(
+            mediaType = "application/json",
+            examples = @ExampleObject(
+                name = "Ejemplo Observación Aprobación", // 👈 Título adaptado
+                value = "{\n  \"observaciones\": \"Documentación verificada de forma correcta\"\n}" // 👈 JSON adaptado para aprobación
+            )
+        )
+    )
+    
+    @RequestBody(required = false) Map<String, String> request // ◄--- Agregado para capturar la observación
 ) {
     System.out.println("VENDEDOR: recibió solicitud del ADMIN ID " + id);
     
@@ -248,6 +372,8 @@ public ResponseEntity<Void> aprobar(  @PathVariable Integer id, @RequestBody(req
     return ResponseEntity.ok().build();
 }
 @GetMapping("/verificar/{id}")
+@Operation(summary = "Verificar existencia y estado", description = "Retorna el estado directo del vendedor o 'NO_EXISTE' si el ID no se encuentra.")
+    @ApiResponse(responseCode = "200", description = "Estado retornado")
 public ResponseEntity<String> verificarVendedor(
         @PathVariable Integer id
 ) {
