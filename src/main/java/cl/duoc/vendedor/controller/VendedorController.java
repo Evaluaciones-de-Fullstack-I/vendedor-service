@@ -313,7 +313,7 @@ public ResponseEntity<Map<String, String>> actualizarProducto(
 @PutMapping("/rechazar/{id}")
 @Operation(summary = "Rechazar vendedor (Interno)", description = "Endpoint consumido por el microservicio de Administración para rechazar una postulación guardando observaciones.")
 @ApiResponse(responseCode = "200", description = "Vendedor rechazado exitosamente")
-public ResponseEntity<Void> rechazar( 
+public ResponseEntity<?> rechazar( 
     @PathVariable Integer id, 
     // Agregamos la documentación de Swagger para el cuerpo aquí:
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -338,7 +338,12 @@ public ResponseEntity<Void> rechazar(
     vendedorService.cambiarEstado(id, "RECHAZADO", obs);
     
     System.out.println("Vendedor rechazado ID: " + id + " con motivo: " + obs);
-    return ResponseEntity.ok().build();
+
+    Map<String, String> respuesta = new HashMap<>();
+    respuesta.put("mensaje", "Vendedor rechazado exitosamente");
+    respuesta.put("estado", "RECHAZADO");
+
+    return ResponseEntity.ok(respuesta);
 }
 
 @PutMapping("/aprobar/{id}")
@@ -369,7 +374,7 @@ public ResponseEntity<?> aprobar(
     vendedorService.cambiarEstado(id, "APROBADO", obs);
     
     System.out.println("Vendedor aprobado ID: " + id + " con obs: " + obs);
-    
+
     Map<String, String> respuesta = new HashMap<>();
     respuesta.put("mensaje", "Vendedor aprobado exitosamente");
     respuesta.put("estado", "APROBADO");
