@@ -344,7 +344,7 @@ public ResponseEntity<Void> rechazar(
 @PutMapping("/aprobar/{id}")
 @Operation(summary = "Aprobar vendedor (Interno)", description = "Endpoint consumido por el microservicio de Administración para aprobar una postulación.")
 @ApiResponse(responseCode = "200", description = "Vendedor aprobado exitosamente")
-public ResponseEntity<Void> aprobar(
+public ResponseEntity<?> aprobar(
     @PathVariable Integer id, 
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
         description = "Observación de aprobación opcional",
@@ -369,7 +369,13 @@ public ResponseEntity<Void> aprobar(
     vendedorService.cambiarEstado(id, "APROBADO", obs);
     
     System.out.println("Vendedor aprobado ID: " + id + " con obs: " + obs);
-    return ResponseEntity.ok().build();
+    
+    Map<String, String> respuesta = new HashMap<>();
+    respuesta.put("mensaje", "Vendedor aprobado exitosamente");
+    respuesta.put("estado", "APROBADO");
+
+
+    return ResponseEntity.ok(respuesta);
 }
 @GetMapping("/verificar/{id}")
 @Operation(summary = "Verificar existencia y estado", description = "Retorna el estado directo del vendedor o 'NO_EXISTE' si el ID no se encuentra.")
